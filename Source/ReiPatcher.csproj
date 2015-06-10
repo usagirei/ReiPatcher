@@ -50,6 +50,8 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Mono.Cecil.0.9.6.1\lib\net35\Mono.Cecil.Rocks.dll</HintPath>
     </Reference>
+  </ItemGroup>
+  <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -63,13 +65,13 @@
     <Compile Include="INI\IniKey.cs" />
     <Compile Include="INI\IniParser.cs" />
     <Compile Include="INI\IniSection.cs" />
-    <Compile Include="Linq.cs" />
+    <Compile Include="Utils\Linq.cs" />
     <Compile Include="PatchBase.cs" />
     <Compile Include="PatcherArguments.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReiPatcherAttribute.cs" />
-    <Compile Include="AttributeUtil.cs" />
+    <Compile Include="Utils\AttributeUtil.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

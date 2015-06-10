@@ -11,7 +11,7 @@ using Mono.Cecil;
 
 #endregion
 
-namespace ReiPatcher
+namespace ReiPatcher.Utils
 {
 
     internal static class AttributeUtil
@@ -68,7 +68,7 @@ namespace ReiPatcher
         internal static void SetPatchedAttribute(ModuleDefinition module, IMemberDefinition member, string info)
         {
             TypeReference strType = module.Import(typeof (String));
-            TypeReference objType = module.Import(typeof (object));
+            //TypeReference objType = module.Import(typeof (object));
 
             ConstructorInfo ctor = typeof (ReiPatcherAttribute).GetConstructor(new[] {typeof (string)});
             MethodReference @ref = module.Import(ctor);

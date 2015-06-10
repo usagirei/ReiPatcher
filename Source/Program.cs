@@ -8,10 +8,12 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Resources;
 
 using Mono.Cecil;
 
 using ReiPatcher.INI;
+using ReiPatcher.Utils;
 
 #endregion
 
@@ -22,9 +24,9 @@ namespace ReiPatcher
     {
         #region Constants
         private const string ARG_FORCECREATE = "-fc";
+        private const string ARG_RELOAD = "-r";
         private const string ARG_USECREATE = "-c";
         private const string ARG_WAIT = "-w";
-        private const string ARG_RELOAD = "-r";
         private const string BACKUP_DATE_FORMAT = "yyyy-MM-dd_HH-mm-ss";
         #endregion
 
@@ -34,8 +36,6 @@ namespace ReiPatcher
 
         #region Static Properties
         public static IniFile ConfigFile { get; set; }
-
-        public static bool LoadBackups { get; set; }
 
         public static string ConfigFilePath
         {
@@ -50,12 +50,36 @@ namespace ReiPatcher
         }
 
         public static bool ForceCreate { get; set; }
+        public static bool LoadBackups { get; set; }
 
         public static bool WaitUser { get; set; }
         #endregion
 
+        #region Event Handlers
+        private static Assembly GitAssemblyResolve(object sender, ResolveEventArgs e)
+        {
+            String resourceName = "ReiPatcher.DLL." + new AssemblyName(e.Name).Name + ".dll";
+            using (Stream s = Assembly.GetExecutingAssembly()
+                                      .GetManifestResourceStream(resourceName))
+            {
+                if (s == null)
+                    throw new MissingManifestResourceException("Resource '" + resourceName + "' not Found");
+
+                var assemblyData = new Byte[s.Length];
+                s.Read(assemblyData, 0, assemblyData.Length);
+                return Assembly.Load(assemblyData);
+            }
+        }
+        #endregion
+
         #region Entry Point
         private static void Main(string[] args)
+        {
+            AppDomain.CurrentDomain.AssemblyResolve += GitAssemblyResolve;
+            Main_Internal(args);
+        }
+
+        private static void Main_Internal(string[] args)
         {
             Console.ForegroundColor = ConsoleColor.Gray;
             Console.BackgroundColor = ConsoleColor.Black;
@@ -96,7 +120,7 @@ namespace ReiPatcher
 
             RunPatchers(patchers, assemblies);
 
-            foreach (var ass in assemblies)
+            foreach (PatcherArguments ass in assemblies)
             {
                 var attrs = AttributeUtil.GetPatchedAttributes(ass.Assembly);
                 if (!ass.FromBackup && attrs.None())
@@ -120,33 +144,6 @@ namespace ReiPatcher
             Console.WriteLine("Finished");
 
             Kill(ExitCode.Success);
-        }
-
-        private static PatcherArguments LoadAssembly(string ass)
-        {
-            var dir = Path.GetDirectoryName(ass);
-            var dll = Path.GetFileName(ass);
-
-            if (LoadBackups)
-            {
-                var backups = (from backup in Directory.GetFiles(dir, "*.bak")
-                               let fName = Path.GetFileName(backup)
-                               where fName.StartsWith(dll)
-                               let clip = Path.GetFileNameWithoutExtension(backup)
-                                              .Substring(dll.Length + 1)
-                               let date = DateTime.ParseExact(clip, BACKUP_DATE_FORMAT, CultureInfo.InvariantCulture)
-                               orderby date descending
-                               select backup).ToArray();
-
-                if (backups.Any())
-                {
-                    var first = backups.First();
-                    WriteColored(ConsoleColor.Yellow, "Loading '{0}' From Backup", dll);
-                    return new PatcherArguments(AssemblyDefinition.ReadAssembly(first), ass, true);
-                }
-            }
-            Console.WriteLine("Loading '{0}'", dll);
-            return new PatcherArguments(AssemblyDefinition.ReadAssembly(ass), ass, false);
         }
         #endregion
 
@@ -188,6 +185,33 @@ namespace ReiPatcher
                 Console.Read();
             }
             Environment.Exit((int) code);
+        }
+
+        private static PatcherArguments LoadAssembly(string ass)
+        {
+            string dir = Path.GetDirectoryName(ass);
+            string dll = Path.GetFileName(ass);
+
+            if (LoadBackups)
+            {
+                var backups = (from backup in Directory.GetFiles(dir, "*.bak")
+                               let fName = Path.GetFileName(backup)
+                               where fName.StartsWith(dll)
+                               let clip = Path.GetFileNameWithoutExtension(backup)
+                                              .Substring(dll.Length + 1)
+                               let date = DateTime.ParseExact(clip, BACKUP_DATE_FORMAT, CultureInfo.InvariantCulture)
+                               orderby date descending
+                               select backup).ToArray();
+
+                if (backups.Any())
+                {
+                    string first = backups.First();
+                    WriteColored(ConsoleColor.Yellow, "Loading '{0}' From Backup", dll);
+                    return new PatcherArguments(AssemblyDefinition.ReadAssembly(first), ass, true);
+                }
+            }
+            Console.WriteLine("Loading '{0}'", dll);
+            return new PatcherArguments(AssemblyDefinition.ReadAssembly(ass), ass, false);
         }
 
         private static void ParseArguments(string[] args)
@@ -237,7 +261,6 @@ namespace ReiPatcher
             {
                 WriteColoredCenter(ConsoleColor.DarkGray, informational.InformationalVersion);
             }
-            
         }
 
         private static void RunPatchers(PatchBase[] patchers, params PatcherArguments[] assemblies)
@@ -310,17 +333,6 @@ namespace ReiPatcher
                 });
         }
 
-        private static void WriteColoredCenter(ConsoleColor color, string format, params object[] args)
-        {
-            string s = string.Format(format, args);
-            int offset = (Console.BufferWidth - s.Length) / 2;
-            ConsoleColor old = Console.ForegroundColor;
-            Console.ForegroundColor = color;
-            Console.CursorLeft = offset;
-            Console.WriteLine(s);
-            Console.ForegroundColor = old;
-        }
-
         private static void WriteCentered(string format, params object[] args)
         {
             string s = string.Format(format, args);
@@ -337,6 +349,17 @@ namespace ReiPatcher
             Console.ForegroundColor = old;
         }
 
+        private static void WriteColoredCenter(ConsoleColor color, string format, params object[] args)
+        {
+            string s = string.Format(format, args);
+            int offset = (Console.BufferWidth - s.Length) / 2;
+            ConsoleColor old = Console.ForegroundColor;
+            Console.ForegroundColor = color;
+            Console.CursorLeft = offset;
+            Console.WriteLine(s);
+            Console.ForegroundColor = old;
+        }
+
         private static void WriteSplitter(bool full = false)
         {
             if (full)
@@ -348,24 +371,6 @@ namespace ReiPatcher
                 Console.Write(new string(' ', Console.BufferWidth / 4));
                 Console.WriteLine(new string('-', Console.BufferWidth / 2));
             }
-        }
-        #endregion
-
-        #region Nested type: IniValues
-        private struct IniValues
-        {
-            #region Constants
-            public const string ASSEMBLIES = "Assemblies";
-
-            public const string LAUNCH = "Launch";
-            public const string LAUNCH_ARG = "Arguments";
-            public const string LAUNCH_DIR = "Directory";
-            public const string LAUNCH_EXE = "Executable";
-
-            public const string MAIN = "ReiPatcher";
-            public const string MAIN_ASSEMBLIES = "AssembliesDir";
-            public const string MAIN_PATCHES = "PatchesDir";
-            #endregion
         }
         #endregion
     }
@@ -502,6 +507,24 @@ namespace ReiPatcher
             ini.Save(path);
 
             return ExitCode.Success;
+        }
+        #endregion
+
+        #region Nested type: IniValues
+        private struct IniValues
+        {
+            #region Constants
+            public const string ASSEMBLIES = "Assemblies";
+
+            public const string LAUNCH = "Launch";
+            public const string LAUNCH_ARG = "Arguments";
+            public const string LAUNCH_DIR = "Directory";
+            public const string LAUNCH_EXE = "Executable";
+
+            public const string MAIN = "ReiPatcher";
+            public const string MAIN_ASSEMBLIES = "AssembliesDir";
+            public const string MAIN_PATCHES = "PatchesDir";
+            #endregion
         }
         #endregion
     }

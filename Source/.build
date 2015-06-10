@@ -6,14 +6,20 @@
 		<PlatformTarget>x86</PlatformTarget>
 		<DebugType>pdbonly</DebugType>
 		<Optimize>true</Optimize>
-		<OutputPath>..\Build\</OutputPath>
+		<OutputPath>..\Build\Development\</OutputPath>
 		<DefineConstants>TRACE</DefineConstants>
 		<ErrorReport>prompt</ErrorReport>
 		<WarningLevel>4</WarningLevel>
-		<DocumentationFile>..\Build\ReiPatcher.XML</DocumentationFile>
+		<DocumentationFile>..\Build\Development\ReiPatcher.XML</DocumentationFile>
 	</PropertyGroup>
 
-	<Import Project="ReiPatcher.csproj" />  
+  <PropertyGroup Condition="'$(AIO)' == 'True'">
+    <AssemblyName>ReiPatcher</AssemblyName>
+    <OutputPath>..\Build\Standalone\</OutputPath>
+    <DocumentationFile>..\Build\Standalone\ReiPatcher.XML</DocumentationFile>
+  </PropertyGroup>
+
+	<Import Project="ReiPatcher.csproj" />
 
 	<!-- Start MSBuild Tasks -->
 	<PropertyGroup>
@@ -27,7 +33,7 @@
 			<Output TaskParameter="HasPendingChanges" PropertyName="Dirty" />
 		</GitPendingChanges>
 
-		<PropertyGroup>
+    <PropertyGroup>
 			<DefineConstants>GIT</DefineConstants>
 			<DirtyTag Condition="'$(Dirty)' == 'True'">Dirty</DirtyTag>
 		</PropertyGroup>
@@ -50,9 +56,44 @@
 			<Compile Include="Properties\AssemblyVersion_Git.cs" />
 		</ItemGroup>
 
+		<ItemGroup Condition="'$(AIO)' == 'True'">
+			<Reference Include="Mono.Cecil, Version=0.9.6.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
+				<SpecificVersion>False</SpecificVersion>
+				<HintPath>..\packages\Mono.Cecil.0.9.6.1\lib\net35\Mono.Cecil.dll</HintPath>
+				<Private>False</Private>
+			</Reference>
+			<Reference Include="Mono.Cecil.Mdb, Version=0.9.6.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
+				<SpecificVersion>False</SpecificVersion>
+				<HintPath>..\packages\Mono.Cecil.0.9.6.1\lib\net35\Mono.Cecil.Mdb.dll</HintPath>
+				<Private>False</Private>
+			</Reference>
+			<Reference Include="Mono.Cecil.Pdb, Version=0.9.6.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
+				<SpecificVersion>False</SpecificVersion>
+				<HintPath>..\packages\Mono.Cecil.0.9.6.1\lib\net35\Mono.Cecil.Pdb.dll</HintPath>
+				<Private>False</Private>
+			</Reference>
+			<Reference Include="Mono.Cecil.Rocks, Version=0.9.6.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
+				<SpecificVersion>False</SpecificVersion>
+				<HintPath>..\packages\Mono.Cecil.0.9.6.1\lib\net35\Mono.Cecil.Rocks.dll</HintPath>
+				<Private>False</Private>
+			</Reference>
+
+			<EmbeddedResource Include="..\packages\Mono.Cecil.0.9.6.1\lib\net35\Mono.Cecil.dll">
+				<Link>DLL\Mono.Cecil.dll</Link>
+			</EmbeddedResource>
+			<EmbeddedResource Include="..\packages\Mono.Cecil.0.9.6.1\lib\net35\Mono.Cecil.Mdb.dll">
+				<Link>DLL\Mono.Cecil.Mdb.dll</Link>
+			</EmbeddedResource>
+			<EmbeddedResource Include="..\packages\Mono.Cecil.0.9.6.1\lib\net35\Mono.Cecil.Pdb.dll">
+				<Link>DLL\Mono.Cecil.Pdb.dll</Link>
+			</EmbeddedResource>
+			<EmbeddedResource Include="..\packages\Mono.Cecil.0.9.6.1\lib\net35\Mono.Cecil.Rocks.dll">
+				<Link>DLL\Mono.Cecil.Rocks.dll</Link>
+			</EmbeddedResource>
+		</ItemGroup>
+
 	</Target>
 	<Target Name="AfterBuild">
-		<Delete Files="Properties\AssemblyVersion_Git.cs" />
 		<Delete Files="Properties\AssemblyVersion_Git.cs" />
 	</Target>
 </Project>

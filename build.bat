@@ -3,8 +3,9 @@
 set MSBUILD=%WINDIR%\Microsoft.NET\Framework\v4.0.30319
 set GIT=%PROGRAMFILES(x86)%\Git\bin
 set BUILD=%CD%\.build
+set ILMERGE=%PROGRAMFILES(x86)%\Microsoft\ILMerge
 
-set PATH=%PATH%;%MSBUILD%;%GIT%;%BUILD%
+set PATH=%PATH%;%MSBUILD%;%GIT%;%BUILD%;%ILMERGE%
 
 if not exist "%BUILD%" (
 	mkdir %BUILD%
@@ -19,9 +20,10 @@ if not exist "%MSBUILD%\msbuild.exe" (
 )
 
 echo ---------- Restoring Packages
+REM nuget.exe update -Self
 nuget.exe install Source\packages.config -OutputDirectory packages
 echo ---------- Building Solution
 msbuild.exe Source\.build
-echo ---------- Cleaning Up
+msbuild.exe Source\.build /p:AIO=True
 del obj /s
 :end

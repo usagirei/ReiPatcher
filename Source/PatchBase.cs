@@ -5,6 +5,8 @@
 #region Usings
 using Mono.Cecil;
 
+using ReiPatcher.Utils;
+
 #endregion
 
 namespace ReiPatcher

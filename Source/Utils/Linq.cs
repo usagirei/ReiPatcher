@@ -9,7 +9,7 @@ using System.Linq;
 
 #endregion
 
-namespace ReiPatcher
+namespace ReiPatcher.Utils
 {
 
     /// <summary>
