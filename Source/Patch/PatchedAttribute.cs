@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------
-// ReiPatcher - ReiPatcherAttribute.cs
+// ReiPatcher - PatchedAttribute.cs
 // --------------------------------------------------
 
 #region Usings
@@ -11,10 +11,10 @@ namespace ReiPatcher
 {
 
     /// <summary>
-    ///     PatcherAttribute
+    ///     <see cref="PatchedAttribute"/> Attribute
     /// </summary>
     [AttributeUsage(ATTRIBUTE_TARGETS, AllowMultiple = true)]
-    public class ReiPatcherAttribute : Attribute
+    public class PatchedAttribute : Attribute
     {
         #region Constants
         private const AttributeTargets ATTRIBUTE_TARGETS = AttributeTargets.All;
@@ -32,7 +32,7 @@ namespace ReiPatcher
         ///     Instantiates a PatcherAttribute
         /// </summary>
         /// <param name="info"></param>
-        public ReiPatcherAttribute(string info)
+        public PatchedAttribute(string info)
         {
             Info = info;
         }

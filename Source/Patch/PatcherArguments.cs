@@ -58,6 +58,7 @@ namespace ReiPatcher
         /// </summary>
         /// <param name="def">Definition</param>
         /// <param name="loc">Location</param>
+        /// <param name="fromBackup">Loaded from Backup</param>
         public PatcherArguments(AssemblyDefinition def, string loc, bool fromBackup)
         {
             _location = loc;

@@ -22,6 +22,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Debug\ReiPatcher.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>x86</PlatformTarget>
@@ -65,12 +66,15 @@
     <Compile Include="INI\IniKey.cs" />
     <Compile Include="INI\IniParser.cs" />
     <Compile Include="INI\IniSection.cs" />
-    <Compile Include="Utils\Linq.cs" />
-    <Compile Include="PatchBase.cs" />
-    <Compile Include="PatcherArguments.cs" />
+    <Compile Include="Program.ExitCode.cs" />
+    <Compile Include="Program.Patchers.cs" />
+    <Compile Include="Utils\ConsoleUtil.cs" />
+    <Compile Include="Utils\Extensions.cs" />
+    <Compile Include="Patch\PatchBase.cs" />
+    <Compile Include="Patch\PatcherArguments.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ReiPatcherAttribute.cs" />
+    <Compile Include="Patch\PatchedAttribute.cs" />
     <Compile Include="Utils\AttributeUtil.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -17,34 +17,34 @@ namespace ReiPatcher.Utils
     internal static class AttributeUtil
     {
         #region Fields
-        private static readonly ReiPatcherAttribute[] NoAttributes = new ReiPatcherAttribute[0];
+        private static readonly PatchedAttribute[] NoAttributes = new PatchedAttribute[0];
         #endregion
 
         #region Static Methods
-        internal static ReiPatcherAttribute[] GetPatchedAttributes(IMemberDefinition definition)
+        internal static PatchedAttribute[] GetPatchedAttributes(IMemberDefinition definition)
         {
             if (!definition.HasCustomAttributes)
                 return NoAttributes;
             var attrs = definition.CustomAttributes.Where
-                (def => def.AttributeType.Name == typeof (ReiPatcherAttribute).Name)
+                (def => def.AttributeType.Name == typeof (PatchedAttribute).Name)
                                   .ToList();
 
-            var rps = attrs.Select(at => new ReiPatcherAttribute(at.ConstructorArguments[0].Value as string));
+            var rps = attrs.Select(at => new PatchedAttribute(at.ConstructorArguments[0].Value as string));
 
             return attrs.Any()
                 ? rps.ToArray()
                 : NoAttributes;
         }
 
-        internal static ReiPatcherAttribute[] GetPatchedAttributes(AssemblyDefinition assembly)
+        internal static PatchedAttribute[] GetPatchedAttributes(AssemblyDefinition assembly)
         {
             if (!assembly.HasCustomAttributes)
                 return NoAttributes;
             var attrs = assembly.CustomAttributes.Where
-                (def => def.AttributeType.Name == typeof (ReiPatcherAttribute).Name)
+                (def => def.AttributeType.Name == typeof (PatchedAttribute).Name)
                                 .ToList();
 
-            var rps = attrs.Select(at => new ReiPatcherAttribute(at.ConstructorArguments[0].Value as string));
+            var rps = attrs.Select(at => new PatchedAttribute(at.ConstructorArguments[0].Value as string));
 
             return attrs.Any()
                 ? rps.ToArray()
@@ -56,7 +56,7 @@ namespace ReiPatcher.Utils
             TypeReference strType = assembly.MainModule.Import(typeof (String));
             TypeReference objType = assembly.MainModule.Import(typeof (object));
 
-            ConstructorInfo ctor = typeof (ReiPatcherAttribute).GetConstructor(new[] {typeof (string)});
+            ConstructorInfo ctor = typeof (PatchedAttribute).GetConstructor(new[] {typeof (string)});
             MethodReference @ref = assembly.MainModule.Import(ctor);
 
             CustomAttribute cAttr = new CustomAttribute(@ref);
@@ -70,7 +70,7 @@ namespace ReiPatcher.Utils
             TypeReference strType = module.Import(typeof (String));
             //TypeReference objType = module.Import(typeof (object));
 
-            ConstructorInfo ctor = typeof (ReiPatcherAttribute).GetConstructor(new[] {typeof (string)});
+            ConstructorInfo ctor = typeof (PatchedAttribute).GetConstructor(new[] {typeof (string)});
             MethodReference @ref = module.Import(ctor);
 
             CustomAttribute cAttr = new CustomAttribute(@ref);

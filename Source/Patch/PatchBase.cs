@@ -58,16 +58,16 @@ namespace ReiPatcher
     {
         #region Public Methods
         /// <summary>
-        ///     Gets a <see cref="IMemberDefinition" /> <see cref="ReiPatcherAttribute" />s
+        ///     Gets a <see cref="IMemberDefinition" /> <see cref="PatchedAttribute" />s
         /// </summary>
         /// <param name="definition"></param>
-        public ReiPatcherAttribute[] GetPatchedAttributes(IMemberDefinition definition)
+        public PatchedAttribute[] GetPatchedAttributes(IMemberDefinition definition)
         {
             return AttributeUtil.GetPatchedAttributes(definition);
         }
 
         /// <summary>
-        ///     Sets a <see cref="IMemberDefinition" /> <see cref="ReiPatcherAttribute" />
+        ///     Sets a <see cref="IMemberDefinition" /> <see cref="PatchedAttribute" />
         /// </summary>
         /// <param name="member">Member</param>
         /// <param name="info">Tag</param>
@@ -77,7 +77,7 @@ namespace ReiPatcher
         }
 
         /// <summary>
-        ///     Sets a <see cref="IMemberDefinition" /> <see cref="ReiPatcherAttribute" />
+        ///     Sets a <see cref="IMemberDefinition" /> <see cref="PatchedAttribute" />
         /// </summary>
         /// <param name="member">Member</param>
         /// <param name="info">Tag</param>
@@ -87,7 +87,7 @@ namespace ReiPatcher
         }
 
         /// <summary>
-        ///     Sets a <see cref="IMemberDefinition" /> <see cref="ReiPatcherAttribute" />
+        ///     Sets a <see cref="IMemberDefinition" /> <see cref="PatchedAttribute" />
         /// </summary>
         /// <param name="member">Member</param>
         /// <param name="info">Tag</param>
@@ -97,7 +97,7 @@ namespace ReiPatcher
         }
 
         /// <summary>
-        ///     Sets a <see cref="IMemberDefinition" /> <see cref="ReiPatcherAttribute" />
+        ///     Sets a <see cref="IMemberDefinition" /> <see cref="PatchedAttribute" />
         /// </summary>
         /// <param name="member">Member</param>
         /// <param name="info">Tag</param>
@@ -107,7 +107,7 @@ namespace ReiPatcher
         }
 
         /// <summary>
-        ///     Sets a <see cref="IMemberDefinition" /> <see cref="ReiPatcherAttribute" />
+        ///     Sets a <see cref="IMemberDefinition" /> <see cref="PatchedAttribute" />
         /// </summary>
         /// <param name="member">Member</param>
         /// <param name="info">Tag</param>
