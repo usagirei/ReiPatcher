@@ -7,7 +7,7 @@ using System;
 
 #endregion
 
-namespace ReiPatcher
+namespace ReiPatcher.Patch
 {
 
     /// <summary>

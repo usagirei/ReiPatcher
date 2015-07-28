@@ -6,6 +6,7 @@
 using System;
 using System.Runtime.CompilerServices;
 
+using ReiPatcher.Patch;
 using ReiPatcher.Utils;
 
 #endregion
@@ -21,19 +22,20 @@ namespace ReiPatcher
             string temp;
             foreach (PatcherArguments def in assemblies)
             {
+                ConsoleUtil.Print($"Assembly '{def.Assembly.Name.Name}'",Console.BufferWidth,true,'-', ConsoleColor.DarkGray);
                 foreach (PatchBase patcher in patchers)
                 {
                     try
                     {
                         if (patcher.CanPatch(def))
                         {
-                            Console.WriteLine("Patching '{0}'", patcher.Name);
+                            ConsoleUtil.Print($"Patching '{patcher.Name}'", color: ConsoleColor.DarkGreen);
                             patcher.Patch(def);
+                            def.WasPatched = true;
                         }
                         else
                         {
-                            temp = string.Format("Skipping '{0}'", patcher.Name);
-                            ConsoleUtil.Print(temp, color: ConsoleColor.DarkGray);
+                            ConsoleUtil.Print($"Skipping '{patcher.Name}'", color: ConsoleColor.DarkRed);
                         }
                     }
                     catch (Exception ex)
@@ -47,6 +49,7 @@ namespace ReiPatcher
                         Kill(ExitCode.NoPatchesApplied);
                     }
                 }
+                ConsoleUtil.Print("",Console.BufferWidth,true,'-', ConsoleColor.DarkGray);
             }
         }
 

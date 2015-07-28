@@ -9,7 +9,7 @@ using Mono.Cecil;
 
 #endregion
 
-namespace ReiPatcher
+namespace ReiPatcher.Patch
 {
 
     /// <summary>
@@ -18,38 +18,28 @@ namespace ReiPatcher
     public class PatcherArguments : EventArgs
     {
         #region Fields
-        private AssemblyDefinition _assembly;
-        private string _location;
-        private bool _fromBackup;
         #endregion
 
         #region Properties
         /// <summary>
         ///     Mono.Cecil <see cref="AssemblyDefinition" />
         /// </summary>
-        public AssemblyDefinition Assembly
-        {
-            get { return _assembly; }
-            private set { _assembly = value; }
-        }
+        public AssemblyDefinition Assembly { get; private set; }
 
         /// <summary>
         ///     Assembly Locations
         /// </summary>
-        public string Location
-        {
-            get { return _location; }
-            private set { _location = value; }
-        }
+        public string Location { get; private set; }
 
         /// <summary>
         ///     Is Backup Assembly
         /// </summary>
-        public bool FromBackup
-        {
-            get { return _fromBackup; }
-            private set { _fromBackup = value; }
-        }
+        public bool FromBackup { get; private set; }
+
+        /// <summary>
+        ///     Assembly Was Patched
+        /// </summary>
+        public bool WasPatched { get; set; }
         #endregion
 
         #region (De)Constructors
@@ -61,9 +51,10 @@ namespace ReiPatcher
         /// <param name="fromBackup">Loaded from Backup</param>
         public PatcherArguments(AssemblyDefinition def, string loc, bool fromBackup)
         {
-            _location = loc;
-            _assembly = def;
-            _fromBackup = fromBackup;
+            Location = loc;
+            Assembly = def;
+            FromBackup = fromBackup;
+            WasPatched = false;
         }
         #endregion
     }

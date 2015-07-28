@@ -8,7 +8,9 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 
-using ReiPatcher.INI;
+using ExIni;
+
+using ReiPatcher.Patch;
 using ReiPatcher.Utils;
 
 #endregion
@@ -50,10 +52,12 @@ namespace ReiPatcher
             }
         }
 
+
+
         private static ExitCode CheckDirectories()
         {
-            string patchesDir = ConfigFile[IniValues.MAIN][IniValues.MAIN_PATCHES].Value;
-            string assembliesDir = ConfigFile[IniValues.MAIN][IniValues.MAIN_ASSEMBLIES].Value;
+            string patchesDir = RPConfig.ConfigFile[IniValues.MAIN][IniValues.MAIN_PATCHES].Value;
+            string assembliesDir = RPConfig.ConfigFile[IniValues.MAIN][IniValues.MAIN_ASSEMBLIES].Value;
             if (!Directory.Exists(patchesDir))
             {
                 ConsoleUtil.Print("Patches Directory not Found", color:ConsoleColor.Red);
@@ -73,7 +77,7 @@ namespace ReiPatcher
         {
             foreach (string file in files)
             {
-                Console.WriteLine("File: '{0}'", Path.GetFileName(file));
+                //Console.WriteLine("File: '{0}'", Path.GetFileName(file));
                 if (File.Exists(file))
                     continue;
 
@@ -98,8 +102,9 @@ namespace ReiPatcher
 
         private static ExitCode LoadPatchers(out PatchBase[] patchers)
         {
+
             Type patchType = typeof (PatchBase);
-            string patchesDir = ConfigFile[IniValues.MAIN][IniValues.MAIN_PATCHES].Value;
+            string patchesDir = RPConfig.ConfigFile[IniValues.MAIN][IniValues.MAIN_PATCHES].Value;
             var patchDlls = Directory.GetFiles(patchesDir, "*.dll", SearchOption.TopDirectoryOnly);
             string local = Environment.CurrentDirectory;
             Console.WriteLine("Loading Patchers");
@@ -114,7 +119,7 @@ namespace ReiPatcher
             {
                 patchers = null;
                 Console.WriteLine("No Patches Found");
-                return ExitCode.NoPatchesFound;
+                return ExitCode.Success;
             }
 
             patches.ForEach(patch => Console.WriteLine("Loaded Patcher '{0} {1}'", patch.Name, patch.Version));
@@ -142,7 +147,7 @@ namespace ReiPatcher
 
         private static ExitCode WriteDefaultIni(string path)
         {
-            Console.WriteLine("Creating configuration file: '{0}'", ConfigFilePath);
+            Console.WriteLine("Creating configuration file: '{0}'", RPConfig.ConfigFilePath);
 
             IniFile ini = new IniFile();
 
@@ -178,7 +183,7 @@ namespace ReiPatcher
         #endregion
 
         #region Nested type: IniValues
-        private struct IniValues
+        internal struct IniValues
         {
             #region Constants
             public const string ASSEMBLIES = "Assemblies";

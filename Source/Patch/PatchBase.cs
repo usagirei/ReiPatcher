@@ -9,7 +9,7 @@ using ReiPatcher.Utils;
 
 #endregion
 
-namespace ReiPatcher
+namespace ReiPatcher.Patch
 {
 
     /// <summary>
@@ -26,6 +26,11 @@ namespace ReiPatcher
         ///     Patch Version
         /// </summary>
         public abstract string Version { get; }
+
+        /// <summary>
+        ///     Assemblies Directory
+        /// </summary>
+        public string AssembliesDir => Program.AssembliesDir;
         #endregion
 
         #region Public Methods

@@ -10,14 +10,16 @@
 		<DefineConstants>TRACE</DefineConstants>
 		<ErrorReport>prompt</ErrorReport>
 		<WarningLevel>4</WarningLevel>
+	</PropertyGroup>
+	
+	<PropertyGroup Condition="'$(AIO)' != 'True'">
 		<DocumentationFile>..\Build\Development\ReiPatcher.XML</DocumentationFile>
 	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(AIO)' == 'True'">
-    <AssemblyName>ReiPatcher</AssemblyName>
-    <OutputPath>..\Build\Standalone\</OutputPath>
-    <DocumentationFile>..\Build\Standalone\ReiPatcher.XML</DocumentationFile>
-  </PropertyGroup>
+	<PropertyGroup Condition="'$(AIO)' == 'True'">
+		<AssemblyName>ReiPatcher</AssemblyName>
+		<OutputPath>..\Build\Standalone\</OutputPath>
+	</PropertyGroup>
 
 	<Import Project="ReiPatcher.csproj" />
 
@@ -33,7 +35,7 @@
 			<Output TaskParameter="HasPendingChanges" PropertyName="Dirty" />
 		</GitPendingChanges>
 
-    <PropertyGroup>
+		<PropertyGroup>
 			<DefineConstants>GIT</DefineConstants>
 			<DirtyTag Condition="'$(Dirty)' == 'True'">Dirty</DirtyTag>
 		</PropertyGroup>
@@ -77,6 +79,11 @@
 				<HintPath>..\packages\Mono.Cecil.0.9.6.1\lib\net35\Mono.Cecil.Rocks.dll</HintPath>
 				<Private>False</Private>
 			</Reference>
+			<Reference Include="ExIni, Version=1.0.1.0, Culture=neutral, processorArchitecture=x86">
+				<SpecificVersion>False</SpecificVersion>
+				<HintPath>..\..\ExIni\Releases\ExIni_1.0.1.1\ExIni.dll</HintPath>
+				<Private>False</Private>
+			</Reference>
 
 			<EmbeddedResource Include="..\packages\Mono.Cecil.0.9.6.1\lib\net35\Mono.Cecil.dll">
 				<Link>DLL\Mono.Cecil.dll</Link>
@@ -89,6 +96,9 @@
 			</EmbeddedResource>
 			<EmbeddedResource Include="..\packages\Mono.Cecil.0.9.6.1\lib\net35\Mono.Cecil.Rocks.dll">
 				<Link>DLL\Mono.Cecil.Rocks.dll</Link>
+			</EmbeddedResource>
+			<EmbeddedResource Include="..\..\ExIni\Releases\ExIni_1.0.1.1\ExIni.dll">
+				<Link>DLL\ExIni.dll</Link>
 			</EmbeddedResource>
 		</ItemGroup>
 

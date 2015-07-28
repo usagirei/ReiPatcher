@@ -1,11 +1,10 @@
 @echo off
 
-set MSBUILD=%WINDIR%\Microsoft.NET\Framework\v4.0.30319
+set MSBUILD=C:\Program Files (x86)\MSBuild\14.0\Bin
 set GIT=%PROGRAMFILES(x86)%\Git\bin
 set BUILD=%CD%\.build
-set ILMERGE=%PROGRAMFILES(x86)%\Microsoft\ILMerge
 
-set PATH=%PATH%;%MSBUILD%;%GIT%;%BUILD%;%ILMERGE%
+set PATH=%PATH%;%MSBUILD%;%GIT%;%BUILD%
 
 if not exist "%BUILD%" (
 	mkdir %BUILD%
@@ -27,3 +26,5 @@ msbuild.exe Source\.build
 msbuild.exe Source\.build /p:AIO=True
 del obj /s
 :end
+
+pause

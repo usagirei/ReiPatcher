@@ -35,37 +35,29 @@
     <DocumentationFile>bin\Release\ReiPatcher.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="ExIni, Version=1.0.1.1, Culture=neutral, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\ExIni\Releases\ExIni_1.0.1.1\ExIni.dll</HintPath>
+    </Reference>
     <Reference Include="Mono.Cecil, Version=0.9.6.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Mono.Cecil.0.9.6.1\lib\net35\Mono.Cecil.dll</HintPath>
     </Reference>
-    <Reference Include="Mono.Cecil.Mdb, Version=0.9.6.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Mono.Cecil.Mdb">
       <HintPath>..\packages\Mono.Cecil.0.9.6.1\lib\net35\Mono.Cecil.Mdb.dll</HintPath>
     </Reference>
-    <Reference Include="Mono.Cecil.Pdb, Version=0.9.6.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="Mono.Cecil.Pdb">
       <HintPath>..\packages\Mono.Cecil.0.9.6.1\lib\net35\Mono.Cecil.Pdb.dll</HintPath>
     </Reference>
-    <Reference Include="Mono.Cecil.Rocks, Version=0.9.6.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="Mono.Cecil.Rocks">
       <HintPath>..\packages\Mono.Cecil.0.9.6.1\lib\net35\Mono.Cecil.Rocks.dll</HintPath>
     </Reference>
-  </ItemGroup>
-  <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="INI\IniComment.cs" />
-    <Compile Include="INI\IniFile.cs" />
-    <Compile Include="INI\IniKey.cs" />
-    <Compile Include="INI\IniParser.cs" />
-    <Compile Include="INI\IniSection.cs" />
     <Compile Include="Program.ExitCode.cs" />
     <Compile Include="Program.Patchers.cs" />
     <Compile Include="Utils\ConsoleUtil.cs" />

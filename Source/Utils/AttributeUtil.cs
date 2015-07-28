@@ -9,6 +9,8 @@ using System.Reflection;
 
 using Mono.Cecil;
 
+using ReiPatcher.Patch;
+
 #endregion
 
 namespace ReiPatcher.Utils
