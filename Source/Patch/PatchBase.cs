@@ -72,6 +72,15 @@ namespace ReiPatcher.Patch
         }
 
         /// <summary>
+        ///     Gets a <see cref="AssemblyDefinition" /> <see cref="PatchedAttribute" />s
+        /// </summary>
+        /// <param name="definition"></param>
+        public PatchedAttribute[] GetPatchedAttributes(AssemblyDefinition definition)
+        {
+            return AttributeUtil.GetPatchedAttributes(definition);
+        }
+
+        /// <summary>
         ///     Sets a <see cref="IMemberDefinition" /> <see cref="PatchedAttribute" />
         /// </summary>
         /// <param name="member">Member</param>
@@ -119,6 +128,16 @@ namespace ReiPatcher.Patch
         public void SetPatchedAttribute(EventDefinition member, string info)
         {
             AttributeUtil.SetPatchedAttribute(member.Module, member, info);
+        }
+
+        /// <summary>
+        ///     Sets a <see cref="AssemblyDefinition" /> <see cref="PatchedAttribute" />
+        /// </summary>
+        /// <param name="assembly">Member</param>
+        /// <param name="info">Tag</param>
+        public void SetPatchedAttribute(AssemblyDefinition assembly, string info)
+        {
+            AttributeUtil.SetPatchedAttribute(assembly, info);
         }
         #endregion
     }
