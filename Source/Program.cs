@@ -196,7 +196,7 @@ namespace ReiPatcher
                         continue;
                     }
                     var attrs = AttributeUtil.GetPatchedAttributes(ass.Assembly);
-                    if (!ass.FromBackup && attrs.None())
+                    if (!ass.FromBackup && attrs.None(attribute => attribute.Info == "ReiPatcher"))
                     {
                         string destFileName = string.Format
                             ("{0}.{1:" + BACKUP_DATE_FORMAT + "}.bak", ass.Location, DateTime.Now);
@@ -208,7 +208,7 @@ namespace ReiPatcher
                         File.Copy(ass.Location, destFileName);
                     }
                     if (attrs.None())
-                        AttributeUtil.SetPatchedAttribute(ass.Assembly, "Patched");
+                        AttributeUtil.SetPatchedAttribute(ass.Assembly, "ReiPatcher");
 
                     ConsoleUtil.Print($"Saving '{Path.GetFileName(ass.Location)}'", color: ConsoleColor.DarkGreen);
                     ass.Assembly.Write(ass.Location);
