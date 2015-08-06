@@ -12,7 +12,14 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 
+#if X86
+[assembly: AssemblyTitle("ReiPatcher x86")]
+#elif X64
+[assembly: AssemblyTitle("ReiPatcher x64")]
+#else
 [assembly: AssemblyTitle("ReiPatcher")]
+#endif
+
 [assembly: AssemblyDescription(".NET Assembly Patcher - Powered by Mono.Cecil")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]

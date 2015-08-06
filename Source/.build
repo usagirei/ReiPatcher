@@ -2,14 +2,13 @@
 <Project ToolsVersion="12.0" DefaultTargets="Clean;Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
 	<PropertyGroup>
+		<OutputPath>..\Build\</OutputPath>
 		<Configuration>Git</Configuration>
-		<PlatformTarget>x86</PlatformTarget>
 		<DebugType>pdbonly</DebugType>
 		<Optimize>true</Optimize>
-		<OutputPath>..\Build\</OutputPath>
-		<DefineConstants>TRACE</DefineConstants>
 		<ErrorReport>prompt</ErrorReport>
 		<WarningLevel>4</WarningLevel>
+		<DocumentationFile>..\Build\ExIni.xml</DocumentationFile>
 	</PropertyGroup>
 	
 	<Import Project="ReiPatcher.csproj" />
@@ -31,6 +30,21 @@
 			<DirtyTag Condition="'$(Dirty)' == 'True'">Dirty</DirtyTag>
 		</PropertyGroup>
 
+		<PropertyGroup Condition="'$(Platform)' == 'AnyCPU'">
+			<DefineConstants >GIT;TRACE</DefineConstants>
+			<PlatformTarget>AnyCPU</PlatformTarget>
+		</PropertyGroup>
+		
+		<PropertyGroup Condition="'$(Platform)' == 'x86'">
+			<DefineConstants >GIT;TRACE;X86</DefineConstants>
+			<PlatformTarget>x86</PlatformTarget>
+		</PropertyGroup>
+		
+		<PropertyGroup Condition="'$(Platform)' == 'x64'">
+			<DefineConstants >GIT;TRACE;X64</DefineConstants>
+			<PlatformTarget>x64</PlatformTarget>
+		</PropertyGroup>
+		
 		<GitDescribe LightWeight="True" Match="v[0-9]*">
 			<Output TaskParameter="Tag" PropertyName="VersionTag"/>
 			<Output TaskParameter="CommitCount" PropertyName="Revision" />
