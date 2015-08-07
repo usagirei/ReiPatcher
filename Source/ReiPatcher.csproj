@@ -60,6 +60,7 @@
   <ItemGroup>
     <Compile Include="Program.ExitCode.cs" />
     <Compile Include="Program.Patchers.cs" />
+    <Compile Include="RPConfig.cs" />
     <Compile Include="Utils\ConsoleUtil.cs" />
     <Compile Include="Utils\Extensions.cs" />
     <Compile Include="Patch\PatchBase.cs" />

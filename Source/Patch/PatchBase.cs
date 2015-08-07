@@ -18,14 +18,16 @@ namespace ReiPatcher.Patch
     public abstract partial class PatchBase
     {
         #region Properties
+
         /// <summary>
         ///     Patch Name
         /// </summary>
-        public abstract string Name { get; }
+        public virtual string Name => GetType().Assembly.GetName().Name;
+
         /// <summary>
         ///     Patch Version
         /// </summary>
-        public abstract string Version { get; }
+        public virtual string Version => GetType().Assembly.GetName().Version.ToString();
 
         /// <summary>
         ///     Assemblies Directory

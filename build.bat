@@ -23,7 +23,6 @@ REM nuget.exe update -Self
 nuget.exe install Source\packages.config -OutputDirectory packages
 echo ---------- Building Solution
 msbuild.exe Source\.build
-del obj /s
 :end
 
 pause

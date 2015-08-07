@@ -55,13 +55,13 @@ namespace ReiPatcher.Utils
 
         internal static void SetPatchedAttribute(AssemblyDefinition assembly, string info)
         {
-            TypeReference strType = assembly.MainModule.Import(typeof (String));
-            TypeReference objType = assembly.MainModule.Import(typeof (object));
+            var strType = assembly.MainModule.Import(typeof (String));
+            var objType = assembly.MainModule.Import(typeof (object));
 
-            ConstructorInfo ctor = typeof (PatchedAttribute).GetConstructor(new[] {typeof (string)});
-            MethodReference @ref = assembly.MainModule.Import(ctor);
+            var ctor = typeof (PatchedAttribute).GetConstructor(new[] {typeof (string)});
+            var @ref = assembly.MainModule.Import(ctor);
 
-            CustomAttribute cAttr = new CustomAttribute(@ref);
+            var cAttr = new CustomAttribute(@ref);
             cAttr.ConstructorArguments.Add(new CustomAttributeArgument(strType, info));
 
             assembly.CustomAttributes.Add(cAttr);
@@ -69,13 +69,13 @@ namespace ReiPatcher.Utils
 
         internal static void SetPatchedAttribute(ModuleDefinition module, IMemberDefinition member, string info)
         {
-            TypeReference strType = module.Import(typeof (String));
+            var strType = module.Import(typeof (string));
             //TypeReference objType = module.Import(typeof (object));
 
-            ConstructorInfo ctor = typeof (PatchedAttribute).GetConstructor(new[] {typeof (string)});
-            MethodReference @ref = module.Import(ctor);
+            var ctor = typeof (PatchedAttribute).GetConstructor(new[] {typeof (string)});
+            var @ref = module.Import(ctor);
 
-            CustomAttribute cAttr = new CustomAttribute(@ref);
+            var cAttr = new CustomAttribute(@ref);
             cAttr.ConstructorArguments.Add(new CustomAttributeArgument(strType, info));
 
             member.CustomAttributes.Add(cAttr);

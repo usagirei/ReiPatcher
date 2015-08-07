@@ -3,6 +3,7 @@
 // --------------------------------------------------
 
 #region Usings
+
 using System;
 using System.Diagnostics;
 using System.Globalization;
@@ -10,11 +11,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Resources;
-
-using ExIni;
-
 using Mono.Cecil;
-
 using ReiPatcher.Patch;
 using ReiPatcher.Utils;
 
@@ -22,86 +19,30 @@ using ReiPatcher.Utils;
 
 namespace ReiPatcher
 {
-
-    /// <summary>
-    ///     ReiPatcher Configuration Module
-    /// </summary>
-    public static class RPConfig
-    {
-        #region Static Fields
-        private static string _configFilePath;
-        #endregion
-
-        #region Static Properties
-        /// <summary>
-        ///     Configuration File
-        /// </summary>
-        public static IniFile ConfigFile { get; set; }
-
-        /// <summary>
-        ///     Configuration File Path
-        /// </summary>
-        public static string ConfigFilePath
-        {
-            get { return _configFilePath; }
-            set
-            {
-                bool endsWith = value.EndsWith(".ini", StringComparison.InvariantCultureIgnoreCase);
-                _configFilePath = endsWith
-                                      ? value
-                                      : value + ".ini";
-                try
-                {
-                    ConfigFile = IniFile.FromFile(_configFilePath);
-                }
-                catch
-                {
-                    ConfigFile = new IniFile();
-                }
-            }
-        }
-        #endregion
-
-        #region Public Static Methods
-        /// <summary>
-        ///     Requests an Assembly to be Patched
-        /// </summary>
-        /// <param name="name"></param>
-        public static void RequestAssembly(string name)
-        {
-            ConfigFile[Program.IniValues.ASSEMBLIES][Path.GetFileNameWithoutExtension(name)].Value = name;
-            Save();
-        }
-
-        /// <summary>
-        ///     Save Configuration File
-        /// </summary>
-        public static void Save()
-        {
-            ConfigFile.Save(ConfigFilePath);
-        }
-        #endregion
-    }
-
     internal partial class Program
     {
         #region Constants
+
         private const string ARG_FORCECREATE = "-fc";
         private const string ARG_RELOAD = "-r";
         private const string ARG_USECREATE = "-c";
         private const string ARG_WAIT = "-w";
         private const string BACKUP_DATE_FORMAT = "yyyy-MM-dd_HH-mm-ss";
+
         #endregion
 
         #region Static Properties
+
         public static string AssembliesDir => RPConfig.ConfigFile[IniValues.MAIN][IniValues.MAIN_ASSEMBLIES].Value;
         public static bool ForceCreate { get; set; }
         public static bool LoadBackups { get; set; }
         public static string PatchesDir => RPConfig.ConfigFile[IniValues.MAIN][IniValues.MAIN_PATCHES].Value;
         public static bool WaitUser { get; set; }
+
         #endregion
 
         #region Event Handlers
+
         private static Assembly AssemblyResolve(object sender, ResolveEventArgs e)
         {
             var dllName = new AssemblyName(e.Name).Name + ".dll";
@@ -132,9 +73,11 @@ namespace ReiPatcher
                 return Assembly.Load(assemblyData);
             }
         }
+
         #endregion
 
         #region Entry Point
+
         private static void Main(string[] args)
         {
             AppDomain.CurrentDomain.AssemblyResolve += AssemblyResolve;
@@ -156,69 +99,38 @@ namespace ReiPatcher
 
         private static void Main_Internal(string[] args)
         {
-            string temp;
             if (!File.Exists(RPConfig.ConfigFilePath) || ForceCreate)
                 CallAndKill(() => WriteDefaultIni(RPConfig.ConfigFilePath));
 
-            temp = string.Format("Loading configuration file: '{0}'", RPConfig.ConfigFilePath);
-            ConsoleUtil.Print(temp, color: ConsoleColor.DarkYellow);
-
-            CallAndKill(CheckDirectories, code => code != ExitCode.Success);
+            ConsoleUtil.Print(
+                $"Loading configuration file: '{RPConfig.ConfigFilePath}'",
+                color: ConsoleColor.DarkYellow);
+            CallAndKill(CheckDirectories, NotSuccess);
 
             PrintSplitter("Loading Patchers");
-
             PatchBase[] patchers = null;
+            CallAndKill(() => LoadPatchers(out patchers), NotSuccess);
 
-            CallAndKill(() => LoadPatchers(out patchers), code => code != ExitCode.Success);
-
-
+            // Shouldn't ever be null, howerver...
             if (patchers != null)
             {
-
                 PrintSplitter("Pre-Patch");
                 RunPrePatch(patchers);
 
                 PrintSplitter("Loading Assemblies");
                 var dlls = ListAssemblies();
-                CallAndKill(() => CheckFiles(dlls), code => code != ExitCode.Success);
-                var assemblies = dlls.Select(LoadAssembly)
-                                     .ToArray();
+                CallAndKill(() => CheckFiles(dlls), NotSuccess);
+                var assemblies = dlls.Select(LoadAssembly).ToArray();
 
                 PrintSplitter("Patching");
                 RunPatchers(patchers, assemblies);
 
-                foreach (var ass in assemblies)
-                {
-                    if (!ass.FromBackup && !ass.WasPatched)
-                    {
-                        ConsoleUtil.Print
-                            ($"Not Patched '{Path.GetFileName(ass.Location)}'", color: ConsoleColor.DarkYellow);
-                        continue;
-                    }
-                    var attrs = AttributeUtil.GetPatchedAttributes(ass.Assembly);
-                    if (!ass.FromBackup && attrs.None(attribute => attribute.Info == "ReiPatcher"))
-                    {
-                        string destFileName = string.Format
-                            ("{0}.{1:" + BACKUP_DATE_FORMAT + "}.bak", ass.Location, DateTime.Now);
-
-                        ConsoleUtil.Print
-                            ($"Creating Assembly Backup: '{Path.GetFileName(destFileName)}'",
-                             color: ConsoleColor.DarkYellow);
-
-                        File.Copy(ass.Location, destFileName);
-                    }
-                    if (attrs.None())
-                        AttributeUtil.SetPatchedAttribute(ass.Assembly, "ReiPatcher");
-
-                    ConsoleUtil.Print($"Saving '{Path.GetFileName(ass.Location)}'", color: ConsoleColor.DarkGreen);
-                    ass.Assembly.Write(ass.Location);
-                }
+                RunSaveAndBackup(assemblies);
 
                 PrintSplitter("Post-Patch");
                 RunPostPatch(patchers);
 
                 PrintSplitter("Finished");
-
             }
 
             string exe = RPConfig.ConfigFile["Launch"]["Executable"].Value;
@@ -227,8 +139,8 @@ namespace ReiPatcher
 
             string wd = RPConfig.ConfigFile["Launch"]["Directory"].Value;
             wd = string.IsNullOrEmpty(wd)
-                     ? Path.GetDirectoryName(exe)
-                     : wd;
+                ? Path.GetDirectoryName(exe)
+                : wd;
             var arg = RPConfig.ConfigFile["Launch"]["Arguments"].Value;
             var psi = new ProcessStartInfo(exe, arg);
             if (wd != null)
@@ -259,46 +171,45 @@ namespace ReiPatcher
                 }
             }
         }
+
         #endregion
 
         #region Static Methods
+
         private static string[] ListAssemblies()
         {
             return (from key in RPConfig.ConfigFile[IniValues.ASSEMBLIES].Keys
                     let prefix = key.Value.EndsWith(".dll")
                     let dll = prefix
-                                  ? key.Value
-                                  : key.Value + ".dll"
+                        ? key.Value
+                        : key.Value + ".dll"
                     let rooted = Path.IsPathRooted(dll)
                     let fullPath = rooted
-                                       ? dll
-                                       : Path.Combine(AssembliesDir, dll)
+                        ? dll
+                        : Path.Combine(AssembliesDir, dll)
                     select fullPath).ToArray();
         }
 
         private static PatcherArguments LoadAssembly(string ass)
         {
-            string dir = Path.GetDirectoryName(ass);
-            string dll = Path.GetFileName(ass);
+            var dir = Path.GetDirectoryName(ass);
+            var dll = Path.GetFileName(ass);
 
             if (LoadBackups)
             {
-                var backups = (from backup in Directory.GetFiles(dir, "*.bak")
-                               let fName = Path.GetFileName(backup)
+                var backup = (from file in Directory.GetFiles(dir, "*.bak")
+                               let fName = Path.GetFileName(file)
                                where fName.StartsWith(dll)
-                               let clip = Path.GetFileNameWithoutExtension(backup)
+                               let clip = Path.GetFileNameWithoutExtension(file)
                                               .Substring(dll.Length + 1)
                                let date = DateTime.ParseExact(clip, BACKUP_DATE_FORMAT, CultureInfo.InvariantCulture)
                                orderby date descending
-                               select backup).ToArray();
+                               select file).FirstOrDefault();
 
-                if (backups.Any())
+                if (!string.IsNullOrEmpty(backup))
                 {
-                    string first = backups.First();
-
                     ConsoleUtil.Print($"Loading '{dll}' From Backup", color: ConsoleColor.DarkYellow);
-
-                    return new PatcherArguments(ReadAssembly(first), ass, true);
+                    return new PatcherArguments(ReadAssembly(backup), ass, true);
                 }
             }
             Console.WriteLine("Loading '{0}'", dll);
@@ -307,25 +218,22 @@ namespace ReiPatcher
 
         private static void PrintHeader()
         {
-            AssemblyName version = Assembly.GetExecutingAssembly()
-                                           .GetName();
+            var version = Assembly.GetExecutingAssembly()
+                                  .GetName();
 
-            AssemblyDescriptionAttribute description = Assembly.GetExecutingAssembly()
-                                                               .GetCustomAttributes
-                (typeof (AssemblyDescriptionAttribute), false)
-                                                               .Cast<AssemblyDescriptionAttribute>()
-                                                               .FirstOrDefault();
+            var description = Assembly.GetExecutingAssembly()
+                                      .GetCustomAttributes(typeof (AssemblyDescriptionAttribute), false)
+                                      .Cast<AssemblyDescriptionAttribute>()
+                                      .FirstOrDefault();
 
-            AssemblyInformationalVersionAttribute informational = Assembly.GetExecutingAssembly()
-                                                                          .GetCustomAttributes
-                (typeof (AssemblyInformationalVersionAttribute), false)
-                                                                          .Cast<AssemblyInformationalVersionAttribute>()
-                                                                          .FirstOrDefault();
+            var informational = Assembly.GetExecutingAssembly()
+                                        .GetCustomAttributes(typeof (AssemblyInformationalVersionAttribute), false)
+                                        .Cast<AssemblyInformationalVersionAttribute>()
+                                        .FirstOrDefault();
 
-            AssemblyCopyrightAttribute copyright = Assembly.GetExecutingAssembly()
-                                                           .GetCustomAttributes
-                (typeof (AssemblyCopyrightAttribute), false)
-                                                           .Cast<AssemblyCopyrightAttribute>().FirstOrDefault();
+            var copyright = Assembly.GetExecutingAssembly()
+                                    .GetCustomAttributes(typeof (AssemblyCopyrightAttribute), false)
+                                    .Cast<AssemblyCopyrightAttribute>().FirstOrDefault();
 
             ConsoleUtil.Print($"{version.Name} {version.Version}", Console.BufferWidth, true);
 
@@ -339,16 +247,15 @@ namespace ReiPatcher
             }
             if (informational != null)
             {
-                ConsoleUtil.Print
-                    (informational.InformationalVersion, Console.BufferWidth, true, color: ConsoleColor.DarkGray);
+                ConsoleUtil.Print(informational.InformationalVersion, Console.BufferWidth, true, color: ConsoleColor.DarkGray);
             }
         }
 
         private static void PrintSplitter(string s = "")
         {
             s = s.Length > 0
-                    ? " " + s + " "
-                    : string.Empty;
+                ? " " + s + " "
+                : string.Empty;
             ConsoleUtil.Print(s, Console.BufferWidth - 2, true, '=');
         }
 
@@ -357,7 +264,7 @@ namespace ReiPatcher
             using (FileStream fs = File.OpenRead(path))
                 return AssemblyDefinition.ReadAssembly(fs);
         }
+
         #endregion
     }
-
 }

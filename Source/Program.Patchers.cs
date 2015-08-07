@@ -5,6 +5,7 @@
 #region Usings
 
 using System;
+using System.IO;
 using ReiPatcher.Patch;
 using ReiPatcher.Utils;
 
@@ -18,7 +19,6 @@ namespace ReiPatcher
 
         private static void RunPatchers(PatchBase[] patchers, params PatcherArguments[] assemblies)
         {
-            string temp;
             foreach (var def in assemblies)
             {
                 ConsoleUtil.Print(
@@ -50,12 +50,12 @@ namespace ReiPatcher
                     }
                     catch (Exception ex)
                     {
-                        temp = string.Format
-                            ("Error in Patcher '{0}' at Assembly '{1}'", patcher.Name, def.Assembly.FullName);
-                        ConsoleUtil.Print(temp, color: ConsoleColor.Red);
-
-                        temp = string.Format("  {0}", ex.Message);
-                        ConsoleUtil.Print(temp, color: ConsoleColor.Red);
+                        ConsoleUtil.Print(
+                            $"Error in Patcher '{patcher.Name}' at Assembly '{def.Assembly.FullName}'",
+                            color: ConsoleColor.Red);
+                        ConsoleUtil.Print(
+                            $"  {ex.Message}",
+                            color: ConsoleColor.Red);
                         Kill(ExitCode.NoPatchesApplied);
                     }
                 }
@@ -65,50 +65,80 @@ namespace ReiPatcher
 
         private static void RunPostPatch(PatchBase[] patchers)
         {
-            string temp;
-            patchers.ForEach
-                (
-                    patcher =>
-                    {
-                        try
-                        {
-                            Console.WriteLine("Post-Patch '{0}'", patcher.Name);
-                            patcher.PostPatch();
-                        }
-                        catch (Exception ex)
-                        {
-                            temp = string.Format("Error in Patcher '{0}'", patcher.Name);
-                            ConsoleUtil.Print(temp, color: ConsoleColor.Red);
-                            temp = string.Format("  {0}", ex.Message);
-                            ConsoleUtil.Print(temp, color: ConsoleColor.Red);
-                            Kill(ExitCode.NoPatchesApplied);
-                        }
-                    });
+            foreach (var patcher in patchers)
+            {
+                try
+                {
+                    Console.WriteLine("Post-Patch '{0}'", patcher.Name);
+                    patcher.PostPatch();
+                }
+                catch (Exception ex)
+                {
+                    ConsoleUtil.Print(
+                        $"Error in Patcher '{patcher.Name}'",
+                        color: ConsoleColor.Red);
+                    ConsoleUtil.Print(
+                        $"  {ex.Message}",
+                        color: ConsoleColor.Red);
+                    Kill(ExitCode.NoPatchesApplied);
+                }
+            }
         }
 
         private static void RunPrePatch(PatchBase[] patchers)
         {
-            string temp;
-            patchers.ForEach
-                (
-                    patcher =>
-                    {
-                        try
-                        {
-                            Console.WriteLine("Pre-Patch '{0}'", patcher.Name);
-                            patcher.PrePatch();
-                        }
-                        catch (Exception ex)
-                        {
-                            temp = string.Format("Error in Patcher '{0}'", patcher.Name);
-                            ConsoleUtil.Print(temp, color: ConsoleColor.Red);
-                            temp = string.Format("  {0}", ex.Message);
-                            ConsoleUtil.Print(temp, color: ConsoleColor.Red);
-                            Kill(ExitCode.NoPatchesApplied);
-                        }
-                    });
+            foreach (var patcher in patchers)
+            {
+                try
+                {
+                    Console.WriteLine("Pre-Patch '{0}'", patcher.Name);
+                    patcher.PrePatch();
+                }
+                catch (Exception ex)
+                {
+                    ConsoleUtil.Print(
+                        $"Error in Patcher '{patcher.Name}'",
+                        color: ConsoleColor.Red);
+                    ConsoleUtil.Print(
+                        $"  {ex.Message}",
+                        color: ConsoleColor.Red);
+                    Kill(ExitCode.NoPatchesApplied);
+                }
+            }
         }
 
+        private static void RunSaveAndBackup(PatcherArguments[] assemblies)
+        {
+            foreach (var ass in assemblies)
+            {
+                if (!ass.FromBackup && !ass.WasPatched)
+                {
+                    ConsoleUtil.Print
+                        ($"Not Patched '{Path.GetFileName(ass.Location)}'", color: ConsoleColor.DarkYellow);
+                    continue;
+                }
+                var attrs = AttributeUtil.GetPatchedAttributes(ass.Assembly);
+                if (!ass.FromBackup && attrs.None(attribute => attribute.Info == "ReiPatcher"))
+                {
+                    var destFileName = string.Format(
+                        "{0}.{1:" + BACKUP_DATE_FORMAT + "}.bak",
+                        ass.Location,
+                        DateTime.Now);
+
+                    ConsoleUtil.Print
+                        (
+                            $"Creating Assembly Backup: '{Path.GetFileName(destFileName)}'",
+                            color: ConsoleColor.DarkYellow);
+
+                    File.Copy(ass.Location, destFileName);
+                }
+                if (attrs.None())
+                    AttributeUtil.SetPatchedAttribute(ass.Assembly, "ReiPatcher");
+
+                ConsoleUtil.Print($"Saving '{Path.GetFileName(ass.Location)}'", color: ConsoleColor.DarkGreen);
+                ass.Assembly.Write(ass.Location);
+            }
+        }
         #endregion
     }
 }
