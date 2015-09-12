@@ -1,6 +1,15 @@
+// --------------------------------------------------
+// ReiPatcher - RPConfig.cs
+// --------------------------------------------------
+
+#region Usings
+
 using System;
 using System.IO;
+
 using ExIni;
+
+#endregion
 
 namespace ReiPatcher
 {
@@ -9,13 +18,7 @@ namespace ReiPatcher
     /// </summary>
     public static class RPConfig
     {
-        #region Static Fields
-
         private static string _configFilePath;
-
-        #endregion
-
-        #region Static Properties
 
         /// <summary>
         ///     Configuration File
@@ -33,8 +36,8 @@ namespace ReiPatcher
                 try
                 {
                     _configFilePath = value.EndsWith(".ini", StringComparison.InvariantCultureIgnoreCase)
-                        ? value
-                        : value + ".ini";
+                                          ? value
+                                          : value + ".ini";
                     ConfigFile = IniFile.FromFile(_configFilePath);
                 }
                 catch
@@ -44,9 +47,16 @@ namespace ReiPatcher
             }
         }
 
-        #endregion
-
-        #region Public Static Methods
+        /// <summary>
+        ///     Gets a Configuration file Value
+        /// </summary>
+        /// <param name="sec">Section</param>
+        /// <param name="key">Key</param>
+        /// <returns></returns>
+        public static string GetConfig(string sec, string key)
+        {
+            return ConfigFile[sec][key].Value;
+        }
 
         /// <summary>
         ///     Requests an Assembly to be Patched
@@ -66,6 +76,16 @@ namespace ReiPatcher
             ConfigFile.Save(ConfigFilePath);
         }
 
-        #endregion
+        /// <summary>
+        ///     Sets a Configuration file Value
+        /// </summary>
+        /// <param name="sec">Section</param>
+        /// <param name="key">Key</param>
+        /// <param name="val">Value</param>
+        public static void SetConfig(string sec, string key, string val)
+        {
+            ConfigFile[sec][key].Value = val;
+            Save();
+        }
     }
 }

@@ -3,6 +3,7 @@
 // --------------------------------------------------
 
 #region Usings
+
 using System.Reflection;
 using System.Runtime.InteropServices;
 
@@ -17,6 +18,7 @@ using System.Runtime.InteropServices;
 #elif X64
 [assembly: AssemblyTitle("ReiPatcher x64")]
 #else
+
 [assembly: AssemblyTitle("ReiPatcher")]
 #endif
 

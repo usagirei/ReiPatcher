@@ -3,6 +3,7 @@
 // --------------------------------------------------
 
 #region Usings
+
 using Mono.Cecil;
 
 using ReiPatcher.Utils;
@@ -11,13 +12,15 @@ using ReiPatcher.Utils;
 
 namespace ReiPatcher.Patch
 {
-
     /// <summary>
     ///     Base Class for Patches
     /// </summary>
     public abstract partial class PatchBase
     {
-        #region Properties
+        /// <summary>
+        ///     Assemblies Directory
+        /// </summary>
+        public string AssembliesDir => Program.AssembliesDir;
 
         /// <summary>
         ///     Patch Name
@@ -29,13 +32,6 @@ namespace ReiPatcher.Patch
         /// </summary>
         public virtual string Version => GetType().Assembly.GetName().Version.ToString();
 
-        /// <summary>
-        ///     Assemblies Directory
-        /// </summary>
-        public string AssembliesDir => Program.AssembliesDir;
-        #endregion
-
-        #region Public Methods
         /// <summary>
         ///     Determines if a <see cref="PatchBase" /> can Patch an <see cref="AssemblyDefinition" />
         /// </summary>
@@ -52,18 +48,20 @@ namespace ReiPatcher.Patch
         /// <summary>
         ///     Post Patching (After Save) Operations
         /// </summary>
-        public virtual void PostPatch() {}
+        public virtual void PostPatch()
+        {
+        }
 
         /// <summary>
         ///     Pre Patching (After Loading) Operations
         /// </summary>
-        public virtual void PrePatch() {}
-        #endregion
+        public virtual void PrePatch()
+        {
+        }
     }
 
     partial class PatchBase
     {
-        #region Public Methods
         /// <summary>
         ///     Gets a <see cref="IMemberDefinition" /> <see cref="PatchedAttribute" />s
         /// </summary>
@@ -141,7 +139,5 @@ namespace ReiPatcher.Patch
         {
             AttributeUtil.SetPatchedAttribute(assembly, info);
         }
-        #endregion
     }
-
 }

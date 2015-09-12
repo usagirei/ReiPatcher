@@ -3,6 +3,7 @@
 // --------------------------------------------------
 
 #region Usings
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,29 +12,11 @@ using System.Linq;
 
 namespace ReiPatcher.Utils
 {
-
     /// <summary>
     ///     LINQ Extension
     /// </summary>
     public static class Extensions
     {
-
-        /// <summary>
-        ///     Center-Alings a String
-        /// </summary>
-        /// <param name="text">String</param>
-        /// <param name="width">Total Width</param>
-        /// <param name="pad">Padding Character</param>
-        /// <returns></returns>
-        public static string PadCenter(this string text, int width, char pad)
-        {
-            int miss = width - text.Length;
-            int left = miss / 2 + text.Length;
-            return text.PadLeft(left, pad)
-                       .PadRight(width, pad);
-        }
-
-        #region Public Static Methods
         /// <summary>
         ///     LINQ Foreach Extension
         /// </summary>
@@ -68,7 +51,20 @@ namespace ReiPatcher.Utils
         {
             return !source.Any(predicate);
         }
-        #endregion
-    }
 
+        /// <summary>
+        ///     Center-Alings a String
+        /// </summary>
+        /// <param name="text">String</param>
+        /// <param name="width">Total Width</param>
+        /// <param name="pad">Padding Character</param>
+        /// <returns></returns>
+        public static string PadCenter(this string text, int width, char pad)
+        {
+            int miss = width - text.Length;
+            int left = miss / 2 + text.Length;
+            return text.PadLeft(left, pad)
+                       .PadRight(width, pad);
+        }
+    }
 }

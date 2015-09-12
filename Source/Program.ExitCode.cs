@@ -9,7 +9,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+
 using ExIni;
+
 using ReiPatcher.Patch;
 using ReiPatcher.Utils;
 
@@ -19,25 +21,6 @@ namespace ReiPatcher
 {
     partial class Program
     {
-        #region Enums
-
-        #region ExitCode
-
-        private enum ExitCode
-        {
-            NoPatchesApplied = 1,
-            Success = 0,
-            DirectoryNotFound = -1,
-            FileNotFound = -2,
-            //NoPatchesFound = -3, // Not used anymore
-        }
-
-        #endregion
-
-        #endregion
-
-        #region Static Methods
-
         private static void CallAndKill(Func<ExitCode> function, Func<ExitCode, bool> predicate = null)
         {
             if (predicate?.Invoke(function()) ?? true)
@@ -89,7 +72,8 @@ namespace ReiPatcher
 
         private static ExitCode LoadPatchers(out PatchBase[] patchers)
         {
-            var pType = typeof (PatchBase);
+            //Debugger.Launch();
+            var pType = typeof(PatchBase);
             var pDir = RPConfig.ConfigFile[IniValues.MAIN][IniValues.MAIN_PATCHES].Value;
             var pFiles = Directory.GetFiles(pDir, "*.dll", SearchOption.TopDirectoryOnly);
             var cd = Environment.CurrentDirectory;
@@ -99,19 +83,35 @@ namespace ReiPatcher
             var pList = new List<PatchBase>();
             foreach (var dll in pFiles)
             {
-                var ass = Assembly.LoadFile(Path.Combine(cd, dll));
-                var pbs = (from t in ass.GetTypes() where pType.IsAssignableFrom(t) select t);
-                foreach (var pb in pbs)
+                try
                 {
-                    if (!pb.IsClass || pb.IsAbstract || pb.IsInterface)
-                        continue;
-                    pList.Add(Activator.CreateInstance(pb) as PatchBase);
+                    var dllPath = Path.Combine(cd, dll);
+                    Console.WriteLine(dllPath);
+                    Assembly ass = null;
+
+                    ass = Assembly.LoadFrom(dllPath);
+
+                    var pbs = (from t in ass.GetTypes() where pType.IsAssignableFrom(t) select t);
+                    foreach (var pb in pbs)
+                    {
+                        if (!pb.IsClass || pb.IsAbstract || pb.IsInterface)
+                            continue;
+                        pList.Add(Activator.CreateInstance(pb) as PatchBase);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine(ex.ToString());
+                    Console.ForegroundColor = ConsoleColor.Gray;
+                    patchers = new PatchBase[0];
+                    return ExitCode.InternalException;
                 }
             }
 
             if (pList.Count == 0)
             {
-                patchers = null;
+                patchers = new PatchBase[0];
                 Console.WriteLine("No Patches Found");
                 return ExitCode.Success;
             }
@@ -135,9 +135,9 @@ namespace ReiPatcher
 
             Console.WriteLine();
             Console.WriteLine("Exit Codes:");
-            foreach (ExitCode val in Enum.GetValues(typeof (ExitCode)))
+            foreach (ExitCode val in Enum.GetValues(typeof(ExitCode)))
             {
-                Console.WriteLine("{1: 0;-0} \t\t\t{0}", Enum.GetName(typeof (ExitCode), val), (int) val);
+                Console.WriteLine("{1: 0;-0} \t\t\t{0}", Enum.GetName(typeof(ExitCode), val), (int) val);
             }
             return ExitCode.Success;
         }
@@ -151,7 +151,7 @@ namespace ReiPatcher
             var main = ini[IniValues.MAIN];
             main.Comments.Append
                 (
-                    "Default Configuration file for ReiPatcher",
+                 "Default Configuration file for ReiPatcher",
                     "You can use the $(REGISTRY_PATH) function in any of the Key Values to retrieve a Registry key string",
                     "You can use %ENVIRONMENT% in any of the Key Values to expand a environment variables",
                     "You may (re)define a environment variable by creating a comment in the ;@name=value format anywhere within this file");
@@ -166,7 +166,7 @@ namespace ReiPatcher
 
             ini[IniValues.ASSEMBLIES].Comments.Append
                 (
-                    "Add .NET Assembly Entries Here",
+                 "Add .NET Assembly Entries Here",
                     "Absolute or Relative to ReiPatcher.AssembliesDir",
                     "In the Format <Name>=<Path>");
 
@@ -180,14 +180,24 @@ namespace ReiPatcher
             return ExitCode.Success;
         }
 
+        #region Nested type: ExitCode
+
+        private enum ExitCode
+        {
+            NoPatchesApplied = 1,
+            Success = 0,
+            DirectoryNotFound = -1,
+            FileNotFound = -2,
+            InternalException = -3,
+            //NoPatchesFound = -3, // Not used anymore
+        }
+
         #endregion
 
-        #region Class IniValues
+        #region Nested type: IniValues
 
         internal struct IniValues
         {
-            #region Constants
-
             public const string ASSEMBLIES = "Assemblies";
             public const string LAUNCH = "Launch";
             public const string LAUNCH_ARG = "Arguments";
@@ -196,8 +206,6 @@ namespace ReiPatcher
             public const string MAIN = "ReiPatcher";
             public const string MAIN_ASSEMBLIES = "AssembliesDir";
             public const string MAIN_PATCHES = "PatchesDir";
-
-            #endregion
         }
 
         #endregion
