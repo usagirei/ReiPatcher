@@ -42,6 +42,7 @@ namespace ReiPatcher
                         ConsoleUtil.Print($"Error in Patcher '{patcher.Name}' at Assembly '{def.Assembly.FullName}'",
                             color: ConsoleColor.Red);
                         ConsoleUtil.Print($"  {ex.Message}", color: ConsoleColor.Red);
+                        ConsoleUtil.Print($"  {ex}", color: ConsoleColor.DarkRed);
                         Kill(ExitCode.NoPatchesApplied);
                     }
                 }
@@ -62,6 +63,7 @@ namespace ReiPatcher
                 {
                     ConsoleUtil.Print($"Error in Patcher '{patcher.Name}'", color: ConsoleColor.Red);
                     ConsoleUtil.Print($"  {ex.Message}", color: ConsoleColor.Red);
+                    ConsoleUtil.Print($"  {ex}", color: ConsoleColor.DarkRed);
                     Kill(ExitCode.NoPatchesApplied);
                 }
             }

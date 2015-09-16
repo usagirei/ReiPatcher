@@ -155,23 +155,35 @@ namespace ReiPatcher
                 PrintSplitter("Post-Patch");
                 RunPostPatch(patchers);
 
-                PrintSplitter("Finished");
+                
             }
 
             string exe = RPConfig.ConfigFile["Launch"]["Executable"].Value;
             if (string.IsNullOrEmpty(exe))
+            {
+                PrintSplitter("Finished");
                 Kill(ExitCode.Success);
+            }
 
             string wd = RPConfig.ConfigFile["Launch"]["Directory"].Value;
             wd = string.IsNullOrEmpty(wd)
                      ? Path.GetDirectoryName(exe)
                      : wd;
+
             var arg = RPConfig.ConfigFile["Launch"]["Arguments"].Value;
             var psi = new ProcessStartInfo(exe, arg);
             if (wd != null)
                 psi.WorkingDirectory = wd;
+
+            PrintSplitter("Launch");
+            
+            Console.WriteLine("Target:\t{0}", exe);
+            Console.WriteLine("Arguments:\t{0}", arg);
+            Console.WriteLine("Working Dir:\t{0}", wd);
+
             Process.Start(psi);
 
+            PrintSplitter("Finished");
             Kill(ExitCode.Success);
         }
 
