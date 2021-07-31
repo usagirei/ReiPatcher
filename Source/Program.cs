@@ -11,6 +11,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Resources;
+using System.Threading;
 
 using Mono.Cecil;
 
@@ -28,6 +29,7 @@ namespace ReiPatcher
         private const string ARG_USECREATE = "-c";
         private const string ARG_WAIT = "-w";
         private const string BACKUP_DATE_FORMAT = "yyyy-MM-dd_HH-mm-ss";
+
         public static string AssembliesDir => RPConfig.ConfigFile[IniValues.MAIN][IniValues.MAIN_ASSEMBLIES].Value;
         public static bool ForceCreate { get; set; }
         public static bool LoadBackups { get; set; }
@@ -107,6 +109,9 @@ namespace ReiPatcher
 
         private static void Main(string[] args)
         {
+            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
+
             AppDomain.CurrentDomain.AssemblyResolve += AssemblyResolve;
 
             Console.ForegroundColor = ConsoleColor.Gray;

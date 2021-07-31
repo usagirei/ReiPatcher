@@ -51,8 +51,8 @@ namespace ReiPatcher.Utils
 
         internal static void SetPatchedAttribute(AssemblyDefinition assembly, string info)
         {
-            var strType = assembly.MainModule.Import(typeof(String));
-            var objType = assembly.MainModule.Import(typeof(object));
+            var strType = assembly.MainModule.Import(typeof(string));
+            //var objType = assembly.MainModule.Import(typeof(object));
 
             var ctor = typeof(PatchedAttribute).GetConstructor(
                                                                new[]
